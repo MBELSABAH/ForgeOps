@@ -1,7 +1,9 @@
 # ForgeOps
 ### Manufacturing Work Order Tracker
 
-A local C#/.NET business application for reporting equipment problems, assigning maintenance work and tracking resolution. Built as an independent portfolio project; it is not affiliated with Amsted or any real manufacturer. Northstar Manufacturing, its facilities, technicians and work orders are fictional.
+[Live demo](https://forgeops-mbelsabah.onrender.com) · [Build and test](https://github.com/MBELSABAH/ForgeOps/actions/workflows/ci.yml)
+
+A C#/.NET business application for reporting equipment problems, assigning maintenance work and tracking resolution. Built as an independent portfolio project; it is not affiliated with Amsted or any real manufacturer. Northstar Manufacturing, its facilities, technicians and work orders are fictional.
 
 ![ForgeOps operations dashboard](docs/screenshots/dashboard.jpg)
 
@@ -11,7 +13,7 @@ The .NET server and SQLite database require a web-service host. GitHub Pages can
 
 [Deploy to Render](https://render.com/deploy?repo=https://github.com/MBELSABAH/ForgeOps)
 
-Render supplies the public website URL after deployment. Its free service sleeps when idle, and SQLite changes are lost when the instance restarts, redeploys or sleeps. It reseeds fictional demo data on startup. This shared demo has no authentication; use fictional data only. Durable storage requires a host with a persistent volume mounted at `/app/App_Data`, writable by the container's `app` user. Local SQLite persistence is unchanged.
+The public demo uses Render's free service. It sleeps when idle, so the first request can take about a minute. SQLite changes are lost when the instance restarts, redeploys or sleeps; fictional data is reseeded on startup. This shared demo has no authentication; use fictional data only. Durable storage requires a host with a persistent volume mounted at `/app/App_Data`, writable by the container's `app` user. Local SQLite persistence is unchanged.
 
 To run the container locally with durable demo data:
 
@@ -110,4 +112,4 @@ Additional GET filters: search=WO-000001, archived=true (archived records only),
 
 SQLite is the executed and tested provider. The SQL Server package/configuration path compiles, and schema generation was verified without a server connection. See [provider instructions](docs/DESIGN.md#optional-sql-server).
 
-This is an unauthenticated loopback demo; personas are illustrative. Human UAT remains unapproved. SQL Server execution, public hosting and cross-browser certification are unverified. No permanent delete, pagination, technician administration or concurrent-edit conflict detection is implemented. Simultaneous valid edits use last-write-wins behavior. Future work: authentication/authorization, optimistic concurrency, paging and SQL Server-specific migrations/tests.
+This is an unauthenticated fictional demo; personas are illustrative. Human UAT remains unapproved. SQL Server execution and cross-browser certification are unverified. No permanent delete, pagination, technician administration or concurrent-edit conflict detection is implemented. Simultaneous valid edits use last-write-wins behavior. Future work: authentication/authorization, optimistic concurrency, paging and SQL Server-specific migrations/tests.

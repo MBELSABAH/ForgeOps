@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: forgeops-demo
+    name: forgeops-mbelsabah
     runtime: docker
     plan: free
     region: virginia

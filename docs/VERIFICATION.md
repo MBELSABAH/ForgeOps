@@ -17,8 +17,14 @@ Observed on October 15, 2026, America/Halifax, on macOS arm64 with SDK 10.0.402 
 
 At verification end, the active queue remained 12 seeded orders: 4 Open, 5 InProgress, 3 Resolved, 4 overdue on October 15. Browser/API verification orders were archived, preserving their evidence. Counts change with edits and the facility date.
 
-The TRX output is generated under tests/ForgeOps.Tests/TestResults and is intentionally ignored by Git. Screenshots are under docs/screenshots. Agent browser verification is separate from human acceptance; UAT remains pending. GitHub Actions is configured but has not run remotely.
+The TRX output is generated under tests/ForgeOps.Tests/TestResults and is intentionally ignored by Git. Screenshots are under docs/screenshots. Agent browser verification is separate from human acceptance; UAT remains pending. GitHub Actions had not run remotely at the initial verification; see the publishing update below.
 
 ## Light theme and branding update — October 16, 2026
 
 Installed the supplied anvil image unchanged, replaced the sidebar with horizontal navigation, and applied a light gray/red/charcoal theme across the dashboard, tables, forms and validation feedback. Release tests passed again: 45/45. The application restarted successfully on port 5080. Browser checks covered wide and mobile layouts, navigation, metric refresh and rejected resolution without notes; no demo records were changed. Mobile list/form widths stayed within the viewport. Updated screenshots show the light theme. The queue has six overdue orders on October 16 because the facility date advanced.
+
+## GitHub and public demo — October 16, 2026
+
+Published source/history and v0.1.0 to [MBELSABAH/ForgeOps](https://github.com/MBELSABAH/ForgeOps). The [deployment commit's GitHub Actions run](https://github.com/MBELSABAH/ForgeOps/actions/runs/38944079344) passed restore, Release build and tests on Ubuntu. Local Release tests also passed 45/45 after the public-demo view change.
+
+Render built the Docker image and served [the public demo](https://forgeops-mbelsabah.onrender.com) on its Free plan in Virginia. Browser checks verified the logo/light theme, public-demo notice, metric refresh, MVC creation, Fetch resolution and archive. WO-000013 is an archived fictional verification record with three audit entries; operational counts returned to the 12 seeded orders. REST summary/detail reads succeeded. Free-host SQLite data can reset on restart, redeploy or inactivity; local persistence remains independent. An additional invalid-write probe was blocked by approval review; invalid writes remain covered by the automated suite.
