@@ -1,0 +1,30 @@
+@model DashboardSummaryDto
+@{ ViewData["Title"] = "Overview"; }
+<div class="page-heading">
+    <div><p class="eyebrow">THE MAINTENANCE PICTURE</p><h1>Operations overview</h1><p class="page-description">A clear view of your workload. Keep the floor moving.</p></div>
+    <div class="heading-actions"><button id="refresh-metrics" class="btn btn-light" type="button"><svg class="icon"><use href="#i-refresh"/></svg> Refresh metrics</button><a class="btn btn-primary" asp-controller="WorkOrders" asp-action="Create"><svg class="icon"><use href="#i-plus"/></svg> New work order</a></div>
+</div>
+<div class="overview-meta"><span><span class="status-dot"></span> Operational snapshot <span class="subtle">· <span id="operational-date">@Model.Today.ToString("dddd, MMMM d, yyyy")</span></span></span><span id="refresh-feedback" class="subtle" role="status" aria-live="polite">Excludes archived work orders</span></div>
+<div class="metrics-grid">
+    <a class="metric-card" asp-controller="WorkOrders" asp-action="Index"><div class="metric-top"><span>Total work orders</span><span class="metric-icon"><svg class="icon"><use href="#i-orders"/></svg></span></div><strong data-metric="total">@Model.Total</strong><span class="metric-caption">Across the operational queue</span></a>
+    <a class="metric-card" asp-controller="WorkOrders" asp-action="Index" asp-route-Status="Open"><div class="metric-top"><span>Open</span><span class="metric-icon blue"><svg class="icon"><use href="#i-plus"/></svg></span></div><strong data-metric="open">@Model.Open</strong><span class="metric-caption">Awaiting attention</span></a>
+    <a class="metric-card" asp-controller="WorkOrders" asp-action="Index" asp-route-Status="InProgress"><div class="metric-top"><span>In progress</span><span class="metric-icon amber"><svg class="icon"><use href="#i-tool"/></svg></span></div><strong data-metric="inProgress">@Model.InProgress</strong><span class="metric-caption">Maintenance underway</span></a>
+    <a class="metric-card metric-overdue" asp-controller="WorkOrders" asp-action="Index" asp-route-Overdue="true"><div class="metric-top"><span>Overdue</span><span class="metric-icon red"><svg class="icon"><use href="#i-clock"/></svg></span></div><strong data-metric="overdue">@Model.Overdue</strong><span class="metric-caption">Past due and unresolved</span></a>
+</div>
+<div id="overdue-notice" class="attention-strip" hidden="@(Model.Overdue == 0)"><div><span class="attention-symbol">!</span><span><strong><span data-metric="overdue">@Model.Overdue</span> work orders need attention</strong><small>Review past-due work to help your team prioritize.</small></span></div><a asp-controller="WorkOrders" asp-action="Index" asp-route-Overdue="true">Review overdue <svg class="icon"><use href="#i-arrow"/></svg></a></div>
+<div class="insights-grid">
+    <section class="panel"><div class="panel-heading"><div><h2>Workload by status</h2><p>From first report to resolution</p></div><span class="panel-kicker">CURRENT QUEUE</span></div><div class="status-breakdown">
+        @foreach (var status in Enum.GetValues<WorkOrderStatus>()) {
+            var count = Model.ByStatus[status.ToString()];
+            <div class="status-row"><div><span class="status-label"><span class="legend-dot status-@status.ToString().ToLowerInvariant()"></span>@WorkOrderService.Label(status)</span><strong data-status-count="@status">@count</strong></div><div class="bar-track"><div class="bar-fill bar-@status.ToString().ToLowerInvariant()" data-status-bar="@status" style="width:@(Model.Total == 0 ? 0 : count * 100 / Model.Total)%"></div></div></div>
+        }
+    </div></section>
+    <section class="panel"><div class="panel-heading"><div><h2>Priority breakdown</h2><p>Know where to focus next</p></div><span class="panel-kicker">ALL STATUSES</span></div><div class="priority-grid">
+        @foreach (var priority in new[] { WorkOrderPriority.Critical, WorkOrderPriority.High, WorkOrderPriority.Medium, WorkOrderPriority.Low }) {
+            <a class="priority-tile" asp-controller="WorkOrders" asp-action="Index" asp-route-Priority="@priority"><span class="badge-priority priority-@priority.ToString().ToLowerInvariant()"><span class="priority-dot"></span>@priority</span><strong data-priority-count="@priority">@Model.ByPriority[priority.ToString()]</strong></a>
+        }
+    </div></section>
+</div>
+<section class="panel table-panel"><div class="panel-heading"><div><h2>Recently updated work orders</h2><p>The latest activity across your facilities</p></div><a class="text-link" asp-controller="WorkOrders" asp-action="Index">View all work orders <svg class="icon"><use href="#i-arrow"/></svg></a></div>
+    <partial name="_WorkOrderTable" model="Model.RecentlyUpdated" />
+</section>

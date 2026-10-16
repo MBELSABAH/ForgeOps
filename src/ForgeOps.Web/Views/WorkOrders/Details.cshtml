@@ -1,0 +1,24 @@
+@model WorkOrderDto
+@{ ViewData["Title"] = Model.ReferenceNumber; }
+<a class="back-link" asp-action="Index" asp-route-Archived="@Model.IsArchived">← Back to @(Model.IsArchived ? "archived " : "")work orders</a>
+<div class="page-heading detail-heading"><div><div class="detail-eyebrow"><span class="eyebrow">@Model.ReferenceNumber</span><span id="status-badge" class="badge-status status-@Model.Status.ToString().ToLowerInvariant()">@WorkOrderService.Label(Model.Status)</span>@if(Model.IsArchived){<span class="badge-status status-archived">Archived</span>}</div><h1>@Model.Title</h1><p class="page-description">@Model.EquipmentName <span class="subtle">·</span> @Model.Facility</p></div>@if(!Model.IsArchived){<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-light">Edit work order <svg class="icon"><use href="#i-arrow"/></svg></a>}</div>
+@if(Model.IsArchived){<div class="notice" role="status">This work order is archived and excluded from operational metrics. Restore it to make changes.</div>}
+<div class="details-layout">
+<div class="detail-main">
+<section class="panel"><div class="panel-heading"><h2>Work order details</h2><span class="badge-priority priority-@Model.Priority.ToString().ToLowerInvariant()"><span class="priority-dot"></span>@Model.Priority priority</span></div><div class="detail-body"><div class="detail-facts"><div><span class="detail-label">Assigned technician</span><strong>@(Model.AssignedTechnicianName ?? "Unassigned")</strong></div><div><span class="detail-label">Due date</span><strong id="due-date-label" class="@(Model.IsOverdue ? "due-overdue" : "")">@Model.DueDate.ToString("MMMM d, yyyy")<span id="overdue-label" hidden="@(!Model.IsOverdue)"> · Overdue</span></strong></div></div><div class="description-block"><span class="detail-label">Description</span><p class="preserve-lines">@Model.Description</p></div><div id="resolution-block" class="resolution-block" hidden="@(string.IsNullOrEmpty(Model.ResolutionNotes))"><span class="detail-label">Resolution notes</span><p id="resolution-display" class="preserve-lines">@Model.ResolutionNotes</p></div><div class="record-timestamps"><span>Created @OperationsClock.LocalTime(Model.CreatedAtUtc)</span><span>Updated <span id="updated-label">@OperationsClock.LocalTime(Model.UpdatedAtUtc)</span></span></div></div></section>
+<section class="panel history-panel"><div class="panel-heading"><div><h2>Activity history</h2><p>A record of changes to this work order</p></div><span id="history-count" class="count-pill">@Model.History.Count</span></div><ol id="history-list" class="history-list">
+@foreach(var entry in Model.History){<li><span class="history-dot"></span><div><strong>@entry.Summary</strong><time datetime="@entry.OccurredAtUtc.ToString("O")">@OperationsClock.LocalTime(entry.OccurredAtUtc)</time>@if(!string.IsNullOrEmpty(entry.Notes)){<p class="history-notes preserve-lines">@entry.Notes</p>}</div></li>}
+</ol></section>
+</div>
+<aside class="detail-aside">
+@if(!Model.IsArchived){
+<section class="panel status-panel"><div class="panel-heading"><div><h2>Move work forward</h2><p>Keep the operational picture current.</p></div></div><form id="status-form" data-order-id="@Model.Id" class="status-form">
+    <label class="form-label" for="status-select">Status</label><select id="status-select" class="form-select">@foreach(var status in Enum.GetValues<WorkOrderStatus>()){<option value="@status" selected="@(Model.Status == status)">@WorkOrderService.Label(status)</option>}</select>
+    <label class="form-label" for="status-notes">Resolution notes</label><textarea id="status-notes" class="form-control" rows="5" maxlength="4000" aria-describedby="notes-help">@Model.ResolutionNotes</textarea><p id="notes-help" class="field-hint">Required when resolving. Record the repair and verification performed.</p>
+    <div id="status-feedback" role="status" aria-live="polite" hidden></div><button class="btn btn-primary w-100" type="submit"><svg class="icon"><use href="#i-check"/></svg> Save status</button>
+    <p class="status-footnote">Reopening clears current resolution notes. Previous notes remain in history.</p>
+</form></section>
+}
+<section class="panel archive-panel"><svg class="icon"><use href="#i-archive"/></svg><h2>@(Model.IsArchived ? "Return to the queue" : "Keep the queue focused")</h2><p>@(Model.IsArchived ? "Restore this order to edit it and include it in operational metrics." : "Archive duplicate or inactive work. Its details and history will be preserved.")</p><form asp-action="@(Model.IsArchived ? "Restore" : "Archive")" asp-route-id="@Model.Id" method="post"><button type="submit" class="btn btn-light w-100">@(Model.IsArchived ? "Restore work order" : "Archive work order")</button></form></section>
+</aside>
+</div>

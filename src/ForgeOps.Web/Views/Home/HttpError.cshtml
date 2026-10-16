@@ -1,0 +1,3 @@
+@model int
+@{ ViewData["Title"] = Model == 404 ? "Not found" : "Request unavailable"; }
+<section class="panel empty-state error-state"><p class="eyebrow">REQUEST @Model</p><h1>@(Model == 404 ? "We couldn't find that page." : "We couldn't complete that request.")</h1><p>The work order or page may be unavailable. Return to your workspace to continue.</p><a class="btn btn-primary" asp-controller="Dashboard" asp-action="Index">Back to overview <svg class="icon"><use href="#i-arrow"/></svg></a></section>

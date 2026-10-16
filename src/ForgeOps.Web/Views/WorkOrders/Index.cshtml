@@ -1,0 +1,16 @@
+@model WorkOrderListViewModel
+@{ ViewData["Title"] = Model.Query.Archived ? "Archived work orders" : "Work orders"; }
+<div class="page-heading"><div><p class="eyebrow">MAINTENANCE WORKSPACE</p><h1>@ViewData["Title"]</h1><p class="page-description">@(Model.Query.Archived ? "Preserved records, ready to restore when needed." : "Every issue, one place. Find, assign, and move work forward.")</p></div><a class="btn btn-primary" asp-action="Create"><svg class="icon"><use href="#i-plus"/></svg> New work order</a></div>
+<section class="panel table-panel">
+<form asp-action="Index" method="get" class="filter-bar" role="search">
+    <input type="hidden" name="Archived" value="@Model.Query.Archived.ToString().ToLowerInvariant()" />
+    <div class="filter-search"><label class="visually-hidden" for="search">Search work orders</label><input id="search" class="form-control" type="search" name="Search" value="@Model.Query.Search" maxlength="120" placeholder="Search title, equipment or WO-000001…" /></div>
+    <div class="filter-select"><label class="visually-hidden" for="filter-status">Filter by status</label><select id="filter-status" class="form-select" name="Status"><option value="">All statuses</option>@foreach(var status in Enum.GetValues<WorkOrderStatus>()){<option value="@status" selected="@(Model.Query.Status == status)">@WorkOrderService.Label(status)</option>}</select></div>
+    <div class="filter-select"><label class="visually-hidden" for="filter-priority">Filter by priority</label><select id="filter-priority" class="form-select" name="Priority"><option value="">All priorities</option>@foreach(var priority in Enum.GetValues<WorkOrderPriority>()){<option value="@priority" selected="@(Model.Query.Priority == priority)">@priority</option>}</select></div>
+    <label class="filter-check"><input type="checkbox" name="Overdue" value="true" checked="@Model.Query.Overdue" /> Overdue only</label>
+    <button class="btn btn-primary" type="submit">Apply</button><a class="btn btn-light" asp-action="Index" asp-route-Archived="@Model.Query.Archived">Reset</a>
+</form>
+<div class="table-toolbar"><span><strong>@Model.Orders.Count</strong> work order@(Model.Orders.Count == 1 ? "" : "s")</span><span>Most recently updated first</span></div>
+<partial name="_WorkOrderTable" model="Model.Orders" />
+</section>
+<p class="after-panel-note">@(Model.Query.Archived ? "Archived records keep their original status and history. Restore an order before editing it." : "Due dates use the facility calendar in America/Halifax. Resolved orders never count as overdue.")</p>
