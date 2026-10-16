@@ -1,0 +1,12 @@
+**/bin/
+**/obj/
+.local/
+.vs/
+.DS_Store
+**/App_Data/
+**/TestResults/
+artifacts/
+*.user
+*.db
+*.db-shm
+*.db-wal
