@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: forgeops-demo
+    runtime: docker
+    plan: free
+    region: virginia
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: PORT
+        value: "8080"
+      - key: ASPNETCORE_HTTP_PORTS
+        value: "8080"
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: AllowedHosts
+        value: "*.onrender.com;localhost;127.0.0.1"
+      - key: Demo__PublicHosting
+        value: "true"

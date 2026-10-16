@@ -1,5 +1,7 @@
+@inject IConfiguration Configuration
 @{
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var publicDemo = Configuration.GetValue<bool>("Demo:PublicHosting");
     var archived = string.Equals(Context.Request.Query["Archived"], "true", StringComparison.OrdinalIgnoreCase)
         || Model is WorkOrderDto { IsArchived: true };
 }
@@ -49,9 +51,10 @@
 <div class="page-shell">
     <div class="context-bar">
         <div><span class="company-name">NORTHSTAR MANUFACTURING</span><span class="context-divider">/</span><span>Maintenance workspace</span></div>
-        <span class="demo-label"><span class="status-dot"></span> LOCAL DEMO <span class="context-divider">/</span> V0.1.0</span>
+        <span class="demo-label"><span class="status-dot"></span> @(publicDemo ? "PUBLIC DEMO" : "LOCAL DEMO") <span class="context-divider">/</span> V0.1.0</span>
     </div>
     <main id="main" class="page-content">
+        @if (publicDemo) { <div class="notice" role="note">Shared portfolio demo. Use fictional data only; changes may reset after inactivity or redeployment.</div> }
         @if (TempData["Success"] is string success) { <div class="notice notice-success" role="status">@success</div> }
         @if (TempData["Notice"] is string notice) { <div class="notice" role="status">@notice</div> }
         @RenderBody()

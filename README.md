@@ -5,6 +5,21 @@ A local C#/.NET business application for reporting equipment problems, assigning
 
 ![ForgeOps operations dashboard](docs/screenshots/dashboard.jpg)
 
+## Public demo hosting
+
+The .NET server and SQLite database require a web-service host. GitHub Pages cannot run the backend. A Dockerfile and a free Render Blueprint are included:
+
+[Deploy to Render](https://render.com/deploy?repo=https://github.com/MBELSABAH/ForgeOps)
+
+Render supplies the public website URL after deployment. Its free service sleeps when idle, and SQLite changes are lost when the instance restarts, redeploys or sleeps. It reseeds fictional demo data on startup. This shared demo has no authentication; use fictional data only. Durable storage requires a host with a persistent volume mounted at `/app/App_Data`, writable by the container's `app` user. Local SQLite persistence is unchanged.
+
+To run the container locally with durable demo data:
+
+~~~sh
+docker build -t forgeops .
+docker run --rm -p 5080:8080 -v forgeops-data:/app/App_Data forgeops
+~~~
+
 ## Start on Apple Silicon macOS
 
 Requires the .NET 10 SDK. This machine was verified with SDK 10.0.402 and runtime 10.0.13 on macOS arm64. No Docker, Node.js, paid service or SQL Server installation is required.
@@ -89,7 +104,7 @@ Additional GET filters: search=WO-000001, archived=true (archived records only),
 - [Self-review and genuine corrections](docs/CODE_REVIEW.md), [human UAT checklist](docs/UAT_CHECKLIST.md).
 - [User guide](docs/USER_GUIDE.md), [troubleshooting](docs/TROUBLESHOOTING.md), [release checklist](docs/RELEASE_CHECKLIST.md) and [v0.1.0 notes](docs/RELEASE_NOTES.md).
 - [Interview questions, resume bullets and two-minute demo](docs/INTERVIEW_PREP.md).
-- Meaningful local Git commits and a GitHub Actions restore/build/test workflow. The workflow has **not run on GitHub**; nothing has been pushed or published.
+- Meaningful Git commits and a GitHub Actions restore/build/test workflow in [MBELSABAH/ForgeOps](https://github.com/MBELSABAH/ForgeOps).
 
 ## SQL Server and limitations
 
