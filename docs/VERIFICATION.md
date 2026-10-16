@@ -18,3 +18,7 @@ Observed on October 15, 2026, America/Halifax, on macOS arm64 with SDK 10.0.402 
 At verification end, the active queue remained 12 seeded orders: 4 Open, 5 InProgress, 3 Resolved, 4 overdue on October 15. Browser/API verification orders were archived, preserving their evidence. Counts change with edits and the facility date.
 
 The TRX output is generated under tests/ForgeOps.Tests/TestResults and is intentionally ignored by Git. Screenshots are under docs/screenshots. Agent browser verification is separate from human acceptance; UAT remains pending. GitHub Actions is configured but has not run remotely.
+
+## Light theme and branding update — October 16, 2026
+
+Installed the supplied anvil image unchanged, replaced the sidebar with horizontal navigation, and applied a light gray/red/charcoal theme across the dashboard, tables, forms and validation feedback. Release tests passed again: 45/45. The application restarted successfully on port 5080. Browser checks covered wide and mobile layouts, navigation, metric refresh and rejected resolution without notes; no demo records were changed. Mobile list/form widths stayed within the viewport. Updated screenshots show the light theme. The queue has six overdue orders on October 16 because the facility date advanced.

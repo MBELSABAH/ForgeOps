@@ -1,15 +1,17 @@
 @{
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
-    var archived = string.Equals(Context.Request.Query["Archived"], "true", StringComparison.OrdinalIgnoreCase);
+    var archived = string.Equals(Context.Request.Query["Archived"], "true", StringComparison.OrdinalIgnoreCase)
+        || Model is WorkOrderDto { IsArchived: true };
 }
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#12333c" />
+    <meta name="theme-color" content="#faf9f7" />
+    <meta name="color-scheme" content="light" />
     <title>@ViewData["Title"] · ForgeOps</title>
-    <link rel="icon" type="image/svg+xml" href="~/favicon.svg" />
+    <link rel="icon" type="image/png" href="~/images/forgeops-logo.png" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
@@ -27,29 +29,37 @@
 <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
 <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
 </svg>
-<aside class="sidebar">
-    <a class="brand" asp-controller="Dashboard" asp-action="Index" aria-label="ForgeOps dashboard">
-        <span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h15v5H10v3h8v5h-8v5H5Z" fill="currentColor"/></svg></span>
-        <span>ForgeOps<span class="brand-subtitle">MANUFACTURING OPERATIONS</span></span>
-    </a>
-    <button class="mobile-nav-toggle btn" type="button" data-bs-toggle="collapse" data-bs-target="#primary-nav" aria-controls="primary-nav" aria-expanded="false" aria-label="Toggle navigation"><svg class="icon"><use href="#i-menu"/></svg></button>
-    <nav id="primary-nav" class="sidebar-nav collapse" aria-label="Primary navigation">
-        <span class="nav-caption">WORKSPACE</span>
-        <a class="nav-item @(controller == "Dashboard" ? "active" : "")" asp-controller="Dashboard" asp-action="Index" aria-current="@(controller == "Dashboard" ? "page" : null)"><svg class="icon"><use href="#i-grid"/></svg> Overview</a>
-        <a class="nav-item @(controller == "WorkOrders" && !archived ? "active" : "")" asp-controller="WorkOrders" asp-action="Index" aria-current="@(controller == "WorkOrders" && !archived ? "page" : null)"><svg class="icon"><use href="#i-orders"/></svg> Work orders</a>
-        <a class="nav-item @(archived ? "active" : "")" asp-controller="WorkOrders" asp-action="Index" asp-route-Archived="true" aria-current="@(archived ? "page" : null)"><svg class="icon"><use href="#i-archive"/></svg> Archived</a>
-        <div class="sidebar-note"><span class="status-dot"></span> Local demo workspace<p>Fictional data. No live equipment.</p></div>
-    </nav>
-    <div class="sidebar-bottom"><span class="plant-monogram">N</span><div>Northstar Manufacturing<small>Fictional company · v0.1.0</small></div></div>
-</aside>
+<header class="masthead">
+    <div class="masthead-inner">
+        <a class="brand" asp-controller="Dashboard" asp-action="Index" aria-label="ForgeOps dashboard">
+            <span class="brand-symbol"><img src="~/images/forgeops-logo.png" asp-append-version="true" width="1254" height="1254" alt="" /></span>
+            <span class="brand-wordmark">FORGE<span>OPS</span><small>MANUFACTURING WORK ORDER TRACKER</small></span>
+        </a>
+        <button class="mobile-nav-toggle btn" type="button" data-bs-toggle="collapse" data-bs-target="#primary-nav" aria-controls="primary-nav" aria-expanded="false" aria-label="Toggle navigation">
+            <svg class="icon"><use href="#i-menu"/></svg>
+        </button>
+        <nav id="primary-nav" class="primary-nav collapse" aria-label="Primary navigation">
+            <a class="nav-item @(controller == "Dashboard" ? "active" : "")" asp-controller="Dashboard" asp-action="Index" aria-current="@(controller == "Dashboard" ? "page" : null)"><svg class="icon"><use href="#i-grid"/></svg> Overview</a>
+            <a class="nav-item @(controller == "WorkOrders" && !archived ? "active" : "")" asp-controller="WorkOrders" asp-action="Index" aria-current="@(controller == "WorkOrders" && !archived ? "page" : null)"><svg class="icon"><use href="#i-orders"/></svg> Work orders</a>
+            <a class="nav-item @(archived ? "active" : "")" asp-controller="WorkOrders" asp-action="Index" asp-route-Archived="true" aria-current="@(archived ? "page" : null)"><svg class="icon"><use href="#i-archive"/></svg> Archived</a>
+        </nav>
+        <div class="workspace-user"><span class="avatar">MC</span><span>Coordinator view<small>Demo persona</small></span></div>
+    </div>
+</header>
 <div class="page-shell">
-    <header class="workspace-header"><div><span class="workspace-label">OPERATIONS</span><span class="workspace-divider">/</span><span>Maintenance workspace</span></div><div class="workspace-user"><span class="avatar">MC</span><span>Coordinator view<small>Demo persona</small></span></div></header>
+    <div class="context-bar">
+        <div><span class="company-name">NORTHSTAR MANUFACTURING</span><span class="context-divider">/</span><span>Maintenance workspace</span></div>
+        <span class="demo-label"><span class="status-dot"></span> LOCAL DEMO <span class="context-divider">/</span> V0.1.0</span>
+    </div>
     <main id="main" class="page-content">
         @if (TempData["Success"] is string success) { <div class="notice notice-success" role="status">@success</div> }
         @if (TempData["Notice"] is string notice) { <div class="notice" role="status">@notice</div> }
         @RenderBody()
     </main>
-    <footer class="page-footer"><span>ForgeOps <span class="footer-separator">·</span> Manufacturing Work Order Tracker</span><span>All facility times: America/Halifax</span></footer>
+    <footer class="page-footer">
+        <span><strong>FORGEOPS</strong> <span class="footer-separator">/</span> Manufacturing work order tracker</span>
+        <span>FACILITY CALENDAR <span class="footer-separator">/</span> America/Halifax</span>
+    </footer>
 </div>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>

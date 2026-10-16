@@ -32,7 +32,7 @@ SQLite is initialized through the committed EF Core migration on startup. The da
 - Fetch-driven status changes, server validation and visible audit history.
 - Resolve only with notes; reopen while preserving previous resolution in history.
 - Archive/restore any order; archived orders are read-only and excluded from the dashboard.
-- Responsive Razor views, local Bootstrap assets, custom CSS, accessible form labels and useful empty states.
+- Responsive light theme with the supplied anvil logo, red accents, horizontal navigation, accessible forms and useful empty states.
 - Five REST endpoints, typed DTOs, JSON validation errors and development OpenAPI at [/openapi/v1.json](http://127.0.0.1:5080/openapi/v1.json).
 
 ## Architecture and technologies
