@@ -11,3 +11,10 @@ artifacts/
 *.db-shm
 *.db-wal
 **/App_Data.backup-*/
+
+# Keep personal planning/interview notes outside the public repository.
+private/
+docs/INTERVIEW_PREP.md
+docs/UAT_CHECKLIST.md
+docs/RELEASE_CHECKLIST.md
+docs/PRIVATE_*.md

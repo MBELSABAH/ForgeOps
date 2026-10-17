@@ -1,22 +1,28 @@
-# Observed TDD walkthrough
+# Test-driven development examples
 
-The initial rules had empty validation / a false overdue result as explicit implementation placeholders. The tests were written and executed before their corresponding rules were implemented. These are the two test-first rules; other features are not claimed as TDD.
+Two business rules were implemented using a **Red → Green → Refactor** sequence with xUnit. The failing results below are actual observed assertion failures, rather than build or environment errors. No claim is made that every feature was written test-first.
 
-Command pattern (from repository root):
+## Example 1: Resolution requires notes
 
-    dotnet test tests/ForgeOps.Tests/ForgeOps.Tests.csproj --filter FullyQualifiedName~TEST_NAME
+**Tests:** Resolve_WithoutNotes_IsRejected, using null, empty, and whitespace-only resolution notes.
 
-## 1. Resolution requires notes
-- Test: Resolve_WithoutNotes_IsRejected, with null, empty and whitespace input.
-- Red observed: 3 failed assertions. Assert.Contains reported an empty error collection; ResolutionNotes was missing.
-- Green fix: return a ResolutionNotes error when the target is Resolved and notes are blank.
-- Green observed: 3 passed, 0 failed.
+- **Red:** three assertions failed because the validation errors did not contain a ResolutionNotes entry.
+- **Green:** the rule was implemented to return a field-specific error when attempting to resolve without meaningful notes.
+- **Verification:** the same three test cases passed.
 
-## 2. Past due and unresolved means overdue
-- Test: PastDue_Unresolved_Unarchived_Order_IsOverdue.
-- Red observed: 1 failed assertion, Expected True / Actual False.
-- Green fix: require a date before today, an unresolved status and an unarchived order.
-- Refactor: retain a pure rule with an explicit today parameter. Add boundary cases for due today, future, resolved and archived orders, plus valid resolution cases.
-- Green/refactor rerun observed: 12 passed, 0 failed. After integration and additional coverage, the complete suite passed 45/45 (27 unit, 18 integration).
+## Example 2: Overdue calculation
 
-The first sandboxed attempt could not start MSBuild IPC. Both Red results above came from actual xUnit assertion failures after rerunning with local IPC access, not from the environment failure.
+**Test:** PastDue_Unresolved_Unarchived_Order_IsOverdue.
+
+- **Red:** expected true for an overdue order, but the placeholder rule returned false.
+- **Green:** the rule was implemented to require a due date before today and exclude resolved or archived orders.
+- **Refactor:** the rule remained a pure function receiving the current facility date explicitly, with added boundary cases.
+- **Verification:** the relevant rule tests passed, followed by the full 45-test suite (27 unit and 18 integration tests).
+
+To reproduce the suite:
+
+~~~sh
+./scripts/test.sh
+~~~
+
+Related HTTP integration tests also verify that rejected writes do not alter persisted orders or audit history.

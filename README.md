@@ -1,115 +1,91 @@
-# ForgeOps
-### Manufacturing Work Order Tracker
+# ForgeOps — Manufacturing Work Order Tracker
 
-[Live demo](https://forgeops-mbelsabah.onrender.com) · [Build and test](https://github.com/MBELSABAH/ForgeOps/actions/workflows/ci.yml)
+**C# · ASP.NET Core MVC · EF Core · SQLite · REST API · xUnit**
 
-A C#/.NET business application for reporting equipment problems, assigning maintenance work and tracking resolution. Built as an independent portfolio project; it is not affiliated with Amsted or any real manufacturer. Northstar Manufacturing, its facilities, technicians and work orders are fictional.
+[Live demo](https://forgeops-mbelsabah.onrender.com) · [Build & test workflow](https://github.com/MBELSABAH/ForgeOps/actions/workflows/ci.yml)
 
-![ForgeOps operations dashboard](docs/screenshots/dashboard.jpg)
+ForgeOps is an independent, full-stack application for tracking manufacturing maintenance work orders. It demonstrates business rules, relational data, service-oriented application design, API integration, and automated verification using fictional facilities, technicians, and work orders.
 
-## Public demo hosting
+![ForgeOps dashboard](docs/screenshots/dashboard.jpg)
 
-The .NET server and SQLite database require a web-service host. GitHub Pages cannot run the backend. A Dockerfile and a free Render Blueprint are included:
+## Features
 
-[Deploy to Render](https://render.com/deploy?repo=https://github.com/MBELSABAH/ForgeOps)
+- **Operations dashboard:** database-derived status, priority, overdue, and recent-activity metrics.
+- **Work orders:** create, edit, assign to a technician, search, filter, and inspect full details.
+- **Workflow controls:** move orders between Open, In Progress, and Resolved; require resolution notes and allow reopening.
+- **Audit history:** preserve meaningful changes and prior resolution notes.
+- **Reversible archiving:** remove orders from active queues without losing their records.
+- **Responsive interface:** Razor views, Bootstrap, and Fetch-based interactions with server-side validation.
 
-The public demo uses Render's free service. It sleeps when idle, so the first request can take about a minute. SQLite changes are lost when the instance restarts, redeploys or sleeps; fictional data is reseeded on startup. This shared demo has no authentication; use fictional data only. Durable storage requires a host with a persistent volume mounted at `/app/App_Data`, writable by the container's `app` user. Local SQLite persistence is unchanged.
+The public demo is unauthenticated and uses **fictional data only**. Please do not enter personal, confidential, or production information.
 
-To run the container locally with durable demo data:
+## Technology and architecture
 
-~~~sh
-docker build -t forgeops .
-docker run --rm -p 5080:8080 -v forgeops-data:/app/App_Data forgeops
-~~~
+| Layer | Technology |
+|---|---|
+| Backend | C#, .NET 10, ASP.NET Core MVC and Web API |
+| Persistence | Entity Framework Core, SQLite |
+| Frontend | Razor, Bootstrap, HTML/CSS, JavaScript Fetch |
+| Testing | xUnit, ASP.NET Core WebApplicationFactory, isolated SQLite integration databases |
+| Delivery | Git, GitHub Actions, Docker/Render for the public demo |
 
-## Start on Apple Silicon macOS
+Both MVC and API controllers share an injected work-order service. Business validation is centralized, reads use asynchronous EF Core queries, and order changes are saved together with their audit entries. An injectable clock handles date-only deadlines in the America/Halifax time zone.
 
-Requires the .NET 10 SDK. This machine was verified with SDK 10.0.402 and runtime 10.0.13 on macOS arm64. No Docker, Node.js, paid service or SQL Server installation is required.
+See [architecture and database design](docs/DESIGN.md).
 
-From the repository root:
+## Run locally
+
+Requires the **.NET 10 SDK** (tested on macOS Apple Silicon). From the repository root:
 
 ~~~sh
 ./scripts/run.sh
 ~~~
 
-Open [ForgeOps](http://127.0.0.1:5080). Stop the process with Ctrl+C. If it is already running, use the open application rather than starting another copy on the same port.
+Open **http://127.0.0.1:5080**. The application applies its SQLite migration and initializes fictional demo data on first launch. Changes made locally persist across application restarts.
 
-The script restores packages, builds and starts the application. It keeps CLI/package caches in ignored .local directories to avoid sandbox home-directory restrictions. An initial restore needs Internet access. Standard dotnet commands also work in an unrestricted terminal:
-
-~~~sh
-dotnet run --project src/ForgeOps.Web
-~~~
-
-SQLite is initialized through the committed EF Core migration on startup. The database is src/ForgeOps.Web/App_Data/forgeops.db. The first run seeds 12 fictional orders and four technicians; subsequent starts preserve changes. Verification records created during development are retained in Archived and do not affect operational metrics.
-
-## What works
-
-- Database-derived totals, overdue counts, recent activity, status and priority breakdowns.
-- Create, view and edit orders; assign a technician; search title/equipment/reference and combine status, priority and overdue filters.
-- Fetch-driven status changes, server validation and visible audit history.
-- Resolve only with notes; reopen while preserving previous resolution in history.
-- Archive/restore any order; archived orders are read-only and excluded from the dashboard.
-- Responsive light theme with the supplied anvil logo, red accents, horizontal navigation, accessible forms and useful empty states.
-- Five REST endpoints, typed DTOs, JSON validation errors and development OpenAPI at [/openapi/v1.json](http://127.0.0.1:5080/openapi/v1.json).
-
-## Architecture and technologies
-
-C# / .NET 10, ASP.NET Core MVC, Razor, EF Core, SQLite, optional Microsoft SQL Server provider, Bootstrap, HTML/CSS, plain JavaScript Fetch, xUnit and WebApplicationFactory.
-
-MVC controllers and API controllers call the same injected work-order service. The service validates before mutation, queries EF asynchronously and saves order changes with audit entries in one transaction. Pure rules and an injectable clock make business behavior independently testable. See [design and relationships](docs/DESIGN.md).
-
-## Verify and prepare a local release
+To run the test suite and Release verification:
 
 ~~~sh
 ./scripts/test.sh
 ./scripts/check.sh
 ~~~
 
-The second command restores, builds Release, runs the suite and publishes to artifacts/publish. Latest observed result: **45 passed, 0 failed** — 27 unit cases and 18 integration cases. Integration tests use unique SQLite databases, never normal demo data. Release build completed with zero warnings/errors. See [verification evidence](docs/VERIFICATION.md).
+The published v0.1.0 verification recorded **45 passing tests** (27 unit and 18 integration cases) and a Release build without warnings or errors. The [GitHub Actions run](https://github.com/MBELSABAH/ForgeOps/actions/runs/38944079344) also completed successfully.
 
-## REST API examples
+## REST API
 
-Enums use string values: Open / InProgress / Resolved and Low / Medium / High / Critical. Dates use YYYY-MM-DD. Requests and responses use DTOs rather than tracked entities.
+The app exposes five API endpoints:
 
-~~~sh
-curl -s 'http://127.0.0.1:5080/api/workorders?status=Open&priority=High'
-curl -s http://127.0.0.1:5080/api/dashboard/summary
-curl -i -X POST http://127.0.0.1:5080/api/workorders \
-  -H 'Content-Type: application/json' \
-  -d '{"title":"Inspect conveyor guard","equipmentName":"Conveyor CV-15","facility":"North plant · Assembly","description":"Inspect bracket and verify fasteners.","priority":"High","dueDate":"2026-10-16"}'
-~~~
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | /api/workorders | List and filter orders |
+| GET | /api/workorders/{id} | Retrieve order details and history |
+| POST | /api/workorders | Create an order |
+| PATCH | /api/workorders/{id}/status | Change an order's status |
+| GET | /api/dashboard/summary | Retrieve dashboard metrics |
 
-Expected: GET returns 200 with a DTO array or summary object. POST returns 201, a Location header pointing to the new resource, and its DTO with an Open status and generated reference.
-
-Set ORDER_ID below to the id returned by POST (13 is only an example):
+Example calls on a local instance:
 
 ~~~sh
-ORDER_ID=13
-curl -i "http://127.0.0.1:5080/api/workorders/$ORDER_ID"
-curl -i -X PATCH "http://127.0.0.1:5080/api/workorders/$ORDER_ID/status" \
-  -H 'Content-Type: application/json' -d '{"status":"InProgress"}'
-curl -i -X PATCH "http://127.0.0.1:5080/api/workorders/$ORDER_ID/status" \
-  -H 'Content-Type: application/json' -d '{"status":"Resolved"}'
-curl -i -X PATCH "http://127.0.0.1:5080/api/workorders/$ORDER_ID/status" \
-  -H 'Content-Type: application/json' \
-  -d '{"status":"Resolved","resolutionNotes":"Secured bracket and completed an operating check."}'
+curl 'http://127.0.0.1:5080/api/workorders?status=Open'
+curl 'http://127.0.0.1:5080/api/dashboard/summary'
 ~~~
 
-Expected: GET and valid PATCH return 200. Resolution without notes returns 400 with an errors.ResolutionNotes message: “Add resolution notes before resolving this work order.” Missing ids return 404. Invalid fields/status values return 400. Non-JSON API writes return 415.
+The application uses typed request/response DTOs, field-specific validation errors, and appropriate HTTP status codes. The OpenAPI specification is available at **/openapi/v1.json** in Development mode.
 
-Additional GET filters: search=WO-000001, archived=true (archived records only), overdue=true. Details include ordered history; list responses omit history entries for efficiency.
+## Development and verification
 
-## Engineering evidence
+- [Product requirements](docs/REQUIREMENTS.md) and [architecture](docs/DESIGN.md)
+- [Development iterations](docs/SPRINT_LOG.md) and [test-driven rule development](docs/TDD_WALKTHROUGH.md)
+- [Code review and fixes](docs/CODE_REVIEW.md) and [verification evidence](docs/VERIFICATION.md)
+- [User guide](docs/USER_GUIDE.md), [troubleshooting](docs/TROUBLESHOOTING.md), and [release notes](docs/RELEASE_NOTES.md)
 
-- [Requirements and acceptance criteria](docs/REQUIREMENTS.md), [design](docs/DESIGN.md) and [solo iteration log](docs/SPRINT_LOG.md).
-- [Two observed Red → Green → Refactor cycles](docs/TDD_WALKTHROUGH.md).
-- [Self-review and genuine corrections](docs/CODE_REVIEW.md), [human UAT checklist](docs/UAT_CHECKLIST.md).
-- [User guide](docs/USER_GUIDE.md), [troubleshooting](docs/TROUBLESHOOTING.md), [release checklist](docs/RELEASE_CHECKLIST.md) and [v0.1.0 notes](docs/RELEASE_NOTES.md).
-- [Interview questions, resume bullets and two-minute demo](docs/INTERVIEW_PREP.md).
-- Meaningful Git commits and a GitHub Actions restore/build/test workflow in [MBELSABAH/ForgeOps](https://github.com/MBELSABAH/ForgeOps).
+## Hosting and limitations
 
-## SQL Server and limitations
+The [live demo](https://forgeops-mbelsabah.onrender.com) runs on Render's free service. Cold starts can be slow, and its ephemeral SQLite database may reset on restart or redeployment. Local SQLite persistence is independent of the hosted demo.
 
-SQLite is the executed and tested provider. The SQL Server package/configuration path compiles, and schema generation was verified without a server connection. See [provider instructions](docs/DESIGN.md#optional-sql-server).
+This is a **portfolio prototype**, not a production maintenance platform. It has no user authentication or role-based authorization, uses fictional data, and does not implement concurrent-edit protection. A SQL Server EF Core provider path and offline schema generation are available, but SQL Server runtime operations have **not** been tested. No independent end-user acceptance signoff is claimed.
 
-This is an unauthenticated fictional demo; personas are illustrative. Human UAT remains unapproved. SQL Server execution and cross-browser certification are unverified. No permanent delete, pagination, technician administration or concurrent-edit conflict detection is implemented. Simultaneous valid edits use last-write-wins behavior. Future work: authentication/authorization, optimistic concurrency, paging and SQL Server-specific migrations/tests.
+## License / usage
+
+Source is provided as a portfolio reference. No separate open-source license is declared.

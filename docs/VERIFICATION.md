@@ -1,30 +1,30 @@
-# Verification evidence
+# Build, test, and demo verification
 
-Observed on October 15, 2026, America/Halifax, on macOS arm64 with SDK 10.0.402 / runtime 10.0.13.
+## Automated verification
 
-| Check | Observed result |
+The October 2026 v0.1.0 verification recorded:
+
+| Category | Result |
 |---|---|
-| ./scripts/check.sh | Restore succeeded; Release build: 0 warnings, 0 errors; 45/45 tests passed; publish output generated |
-| Unit cases | 27: required data, lengths/enums, resolution notes, overdue date/status/archive boundaries and Halifax daylight-saving date boundaries |
-| Integration cases | 18: real HTTP/MVC pipeline, isolated SQLite migrations, POST/GET persistence across application hosts, status/audit invariants, failed-write preservation, filters/summary, technician assignment, archive/restore, antiforgery and HTML encoding |
-| Live API | GET list/detail/summary, POST creation and PATCH status succeeded; verified 200/201/400/404, field errors, invalid filter and OpenAPI document |
-| Browser workflow | Created WO-000013, assigned Jordan Ellis, progressed status through Fetch, rejected blank resolution, resolved with notes, verified dashboard, reopened, archived, restored and archived again |
-| Persistence/restart | Browser-created order remained after stopping/restarting the application; seed orders were not duplicated |
-| Search/empty state | Combined reference/status/priority filters returned the expected single order; unmatched search showed the helpful empty state |
-| Responsive UI | Inspected desktop 1440×1000 and mobile 390×844 overrides; mobile navigation worked; table overflow stayed inside its wrapper |
-| Published application | Ran the publish output in Production on loopback port 5081 with a separate database; HTML/routes/assets and API metrics passed; OpenAPI correctly returned 404 |
-| Optional SQL Server | Offline DDL generation produced all three tables; no server connection or SQL execution tested |
+| Release build | 0 warnings, 0 errors |
+| Unit tests | 27 passed — validation, statuses, resolution, due-date and time-zone boundaries |
+| Integration tests | 18 passed — MVC/API requests using isolated SQLite databases |
+| Total | **45 passed, 0 failed** |
+| Local release | Framework-dependent publish output generated |
+| GitHub Actions CI | [Build-and-test workflow completed successfully](https://github.com/MBELSABAH/ForgeOps/actions/runs/38944079344) |
 
-At verification end, the active queue remained 12 seeded orders: 4 Open, 5 InProgress, 3 Resolved, 4 overdue on October 15. Browser/API verification orders were archived, preserving their evidence. Counts change with edits and the facility date.
+The integration suite covers POST/GET persistence across application hosts, HTTP response codes, invalid-write immutability, audit entries, query filters, dashboard calculations, assignment, archive/restore, antiforgery, and HTML encoding.
 
-The TRX output is generated under tests/ForgeOps.Tests/TestResults and is intentionally ignored by Git. Screenshots are under docs/screenshots. Agent browser verification is separate from human acceptance; UAT remains pending. GitHub Actions had not run remotely at the initial verification; see the publishing update below.
+## Functional smoke checks
 
-## Light theme and branding update — October 16, 2026
+The local application was exercised for work-order creation, assignment, editing, Fetch-based status updates, rejection of incomplete resolution, valid resolution, reopening, archiving/restoration, search, and empty states. Desktop and mobile layouts were inspected, and screenshots were saved under **docs/screenshots/**.
 
-Installed the supplied anvil image unchanged, replaced the sidebar with horizontal navigation, and applied a light gray/red/charcoal theme across the dashboard, tables, forms and validation feedback. Release tests passed again: 45/45. The application restarted successfully on port 5080. Browser checks covered wide and mobile layouts, navigation, metric refresh and rejected resolution without notes; no demo records were changed. Mobile list/form widths stayed within the viewport. Updated screenshots show the light theme. The queue has six overdue orders on October 16 because the facility date advanced.
+Persistence was confirmed after an application restart, with the fictional seed records remaining stable. The published Production build was launched locally with a separate SQLite database and basic routes and API responses checked.
 
-## GitHub and public demo — October 16, 2026
+## Public demo
 
-Published source/history and v0.1.0 to [MBELSABAH/ForgeOps](https://github.com/MBELSABAH/ForgeOps). The [deployment commit's GitHub Actions run](https://github.com/MBELSABAH/ForgeOps/actions/runs/38944079344) passed restore, Release build and tests on Ubuntu. Local Release tests also passed 45/45 after the public-demo view change.
+The [hosted application](https://forgeops-mbelsabah.onrender.com) was smoke-tested for core navigation, dashboard metrics, a work-order workflow, and status updates. The demo uses fictional data, does not require authentication, and can reset its SQLite state when the free service restarts.
 
-Render built the Docker image and served [the public demo](https://forgeops-mbelsabah.onrender.com) on its Free plan in Virginia. Browser checks verified the logo/light theme, public-demo notice, metric refresh, MVC creation, Fetch resolution and archive. WO-000013 is an archived fictional verification record with three audit entries; operational counts returned to the 12 seeded orders. REST summary/detail reads succeeded. Free-host SQLite data can reset on restart, redeploy or inactivity; local persistence remains independent. An additional invalid-write probe was blocked by approval review; invalid writes remain covered by the automated suite.
+## Boundaries
+
+SQL Server provider configuration and offline schema generation were checked, but no SQL Server database queries were executed. Independent end-user acceptance testing and production readiness are outside the scope of v0.1.0. The reported checks are development and automated verification, not external customer approval.

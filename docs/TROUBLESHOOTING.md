@@ -1,12 +1,46 @@
-# Troubleshooting
+# Running ForgeOps and troubleshooting
 
-- **Start:** from the repository root, run ./scripts/run.sh and open http://127.0.0.1:5080. Ctrl+C stops it.
-- **Port already in use:** use the existing instance or stop that process. For a different port run ./scripts/run.sh --no-launch-profile --urls http://127.0.0.1:5082.
-- **SDK missing:** check dotnet --list-sdks. Install a .NET 10 Apple Silicon SDK compatible with global.json; this project was verified with 10.0.402.
-- **Restore/CLI access errors:** use the supplied scripts. They place caches in .local. Package restore requires access to NuGet. The initial agent sandbox blocked MSBuild IPC; build/test commands succeeded when local process/IPC access was allowed. No additional .NET workloads are needed.
-- **Database location:** src/ForgeOps.Web/App_Data/forgeops.db, resolved relative to the web content root. Change ConnectionStrings__ForgeOps to use a separate SQLite file.
-- **Reset safely:** stop the application first. Back up the entire App_Data folder, then start again. A missing database is migrated and seeded automatically. Keep backups out of Git.
-- **Startup failures:** read the terminal output for SDK, migration, provider and file-access errors. Confirm Database:Provider is Sqlite and the database directory is writable. SQL Server requires a separately initialized database.
-- **Tests:** ./scripts/test.sh. Full Release verification: ./scripts/check.sh. Test databases are temporary and isolated.
-- **Request failures:** terminal logs contain structured method/path/order identifiers and trace IDs. Use the reference shown in an error response to find its log. Ordinary HTTP responses do not include stack traces.
-- **Real defect fixed:** API validation errors lost their field messages during base-type serialization. The integration test exposed it; runtime-type serialization fixed it. See CODE_REVIEW.md.
+## Local startup
+
+Install a compatible .NET 10 SDK, then from the repository root:
+
+~~~sh
+./scripts/run.sh
+~~~
+
+Open **http://127.0.0.1:5080**. Stop with Ctrl+C.
+
+To change the local port:
+
+~~~sh
+./scripts/run.sh --no-launch-profile --urls http://127.0.0.1:5082
+~~~
+
+If the port is already in use, stop the existing application process or use a different port.
+
+## Dependencies and tests
+
+Use **dotnet --list-sdks** to verify the SDK. The scripts restore NuGet packages, which requires network access on the first run. For automated checks:
+
+~~~sh
+./scripts/test.sh
+./scripts/check.sh
+~~~
+
+The full check restores packages, builds Release, executes tests, and publishes local output.
+
+## Database
+
+By default, local SQLite data resides at **src/ForgeOps.Web/App_Data/forgeops.db**. The repository ignores this directory, and it should not be committed.
+
+To reset a local demo, stop the application and back up/remove the local database only after confirming it contains no information you need. A missing SQLite database is migrated and populated with fictional seed data at startup. Use a separate database for automated test runs.
+
+SQL Server is an optional, independently configured provider; its runtime operation has not been verified for v0.1.0. See [architecture](DESIGN.md).
+
+## Request failures
+
+Inspect local application logs for request identifiers and error details. Validation failures return field-specific messages; ordinary HTTP responses do not expose stack traces.
+
+## Hosted demonstration
+
+The [Render demo](https://forgeops-mbelsabah.onrender.com) may take longer to start after inactivity and may reset its fictional data on redeployment or restart. **Never enter real personal or production data into the public demo.**

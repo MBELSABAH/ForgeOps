@@ -1,22 +1,34 @@
-# Requirements — v0.1.0
+# ForgeOps — Product requirements (v0.1.0)
 
-ForgeOps tracks fictional equipment problems from reporting through resolution. It is an independent portfolio application, not an Amsted system.
+ForgeOps models a maintenance work-order workflow using fictional facilities and personnel. It is an independent portfolio prototype, not software used by a real manufacturer.
 
-## Illustrative users
-- Maintenance coordinator: create, edit, assign, search, archive and restore orders.
-- Technician: inspect orders, update status and record resolution notes.
-- Operations manager: see workload, urgency and overdue work.
+## User roles (illustrative only)
 
-## Acceptance criteria
-- Required fields and enum values are validated on the server; failed writes preserve existing information.
-- Orders persist across restarts. Seed data is fictional and is not duplicated on restart.
-- Resolving requires notes; status changes and other meaningful mutations preserve history.
-- Resolved orders can reopen; previous resolution notes remain in history.
-- Any order can be archived and restored. Archived orders are read-only and excluded from operational metrics.
-- Overdue means due before today in America/Halifax and unresolved/unarchived. Due today is not overdue.
-- Dashboard totals and summaries come from stored data.
-- MVC and REST endpoints share business services; the browser changes status through Fetch.
-- Automated unit and isolated SQLite integration tests pass; human UAT remains pending.
+- **Maintenance coordinator:** create, edit, assign, search, archive, and restore work orders.
+- **Technician:** view assigned work, update status, and record resolution notes.
+- **Operations manager:** review operational workload and overdue maintenance.
 
-## Constraints
-.NET 10, one MVC project plus one xUnit project, SQLite, Bootstrap and plain JavaScript. Local unauthenticated demo; no public deployment, Docker or real manufacturing data. SQL Server runtime verification and advanced reporting are optional. Usable responsive forms, clear errors and a repeatable local launch are required.
+The personas define use cases; they are not implemented authentication roles.
+
+## Functional requirements
+
+- Capture order title, equipment, facility, description, priority, due date, and optional technician assignment.
+- Persist work orders in a relational database; generate unique work-order references.
+- Support Open, In Progress, and Resolved workflows with server-side validation.
+- Require notes when resolving an order; preserve prior resolution details in audit history after reopening.
+- Permit reversible archiving and restoration; archive records remain readable but are omitted from active metrics.
+- Mark orders overdue only if unresolved, unarchived, and due before today's America/Halifax calendar date.
+- Compute dashboard status and priority summaries from database records.
+- Expose work-order and dashboard JSON endpoints and use Fetch for status changes in the interface.
+
+## Quality and acceptance criteria
+
+- Invalid input returns clear errors and must not change persisted records.
+- Valid updates and associated audit entries are stored atomically.
+- Local SQLite changes survive restarts and initial demo data is not duplicated.
+- Interfaces work at desktop and mobile screen sizes.
+- Automated unit and integration tests verify principal rules and HTTP interactions.
+
+## Implementation scope
+
+.NET 10, ASP.NET Core MVC, EF Core, SQLite, Razor/Bootstrap, JavaScript, and xUnit. A public demo is hosted using Docker on Render with disposable fictional data. Authentication, real manufacturing data, production reliability, and end-user signoff are outside the prototype scope. SQL Server configuration is provided for future integration but remains runtime-unverified.

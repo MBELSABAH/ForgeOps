@@ -1,23 +1,25 @@
-# Solo development log
+# Development iterations and backlog
 
-These are Agile-inspired solo iterations, not experience on a professional Scrum team. Estimates below are rough planning estimates, not measured elapsed time. Completion status reflects the delivered local release and observed verification.
+ForgeOps was developed iteratively as an individual portfolio project. This document shows an Agile-inspired backlog and completed increments; it does **not** represent experience working on a staffed Scrum team.
 
-| Story | Priority | Acceptance | Tasks | Estimate | Status |
-|---|---|---|---|---|---|
-| Coordinator creates and assigns work | P1 | Valid input persists; invalid input does not | Model, schema, forms, service | 2–3 h | Complete |
-| Technician progresses and resolves work | P1 | Resolution requires notes; transitions audited | TDD rule, status API, Fetch UI | 1–2 h | Complete |
-| Manager prioritizes overdue work | P1 | Correct Halifax date boundary and real metrics | TDD rule, queries, dashboard | 1–2 h | Complete |
-| Coordinator finds and archives work | P2 | Search/filter; archive/restore preserves history | Queries, archive actions, table | 1–2 h | Complete |
-| Developer verifies and releases demo | P2 | Build/tests pass; startup documented | Integration tests, review, CI, docs | 2–3 h | Complete |
+| User story | Acceptance criteria | Delivery |
+|---|---|---|
+| As a coordinator, I can create and assign work orders | Valid submissions persist; invalid entries do not | Implemented |
+| As a technician, I can record progress and resolution | Status changes are audited; resolution requires notes | Implemented |
+| As an operations manager, I can prioritize overdue tasks | Dashboard uses persisted data and Halifax deadline rules | Implemented |
+| As a coordinator, I can find and archive records | Search/filter work; archives can be restored | Implemented |
+| As a developer, I can verify changes before release | Automated build/tests and repeatable local startup | Implemented |
 
-Iteration 1: models, persistence, creation/listing, rules, dashboard, API and initial tests.
+## Increment 1 — Core functionality
 
-Iteration 2: complete workflows, responsive UI, audit/archiving, integration checks, defect fixes and concise release material.
+Built the data model and EF Core migration, work-order creation and listing, core business rules, initial APIs, dashboard calculations, and test-first implementations for resolution validation and overdue rules.
 
-## Iteration outcomes and retrospective
+## Increment 2 — Integration and refinement
 
-Iteration 1 completed the data model, SQLite migration, shared workflow rules, dashboard/API foundations and two genuine TDD cycles. Iteration 2 completed the interface, filters, audit/archiving, integration tests and release checks.
+Added interactive status changes, search and filters, audit history, archiving, responsive layouts, HTTP integration tests, and technical documentation.
 
-Completed: the specified local workflows, five REST endpoints, 45 passing tests and Release publish output. Difficulties: sandbox CLI/IPC permissions and a validation-error serialization defect exposed by integration testing. Improvements: shared service validation, clearer API field messages, larger UI reading sizes and removal of unused template assets. Remaining: human UAT, a real GitHub Actions run and SQL Server runtime verification; production authentication/concurrency are future work.
+## Engineering outcomes
 
-No daily standups, external reviews or stakeholder approval occurred. This log records tool-assisted solo work; estimates are not claimed as actual development duration.
+The v0.1.0 verification records 27 unit cases and 18 integration cases passing. Integration testing exposed a validation-error serialization issue, which was fixed and covered by a regression assertion. Other documented refinements include clearer feedback and dependency updates.
+
+Future improvements include authentication/authorization, optimistic concurrency, pagination, SQL Server runtime testing, and independent end-user evaluation.
